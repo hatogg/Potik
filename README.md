@@ -5,8 +5,8 @@
 [Завантажити APK](https://github.com/hatogg/Potik/raw/main/apk/Potik-1.0.apk)
 
 <p align="center">
-  <img src="docs/download.png" width="30%" alt="Вимірювання завантаження: бірюзовий потік у жолобі приладу">
-  <img src="docs/done.png" width="30%" alt="Результат: завантаження, вивантаження, пінг і джитер">
+  <img src="docs/measure.png" width="30%" alt="Вимірювання вивантаження: бурштиновий потік у жолобі приладу">
+  <img src="docs/done.png" width="30%" alt="Результат: показники, графік і оцінка «Чого вистачить»">
   <img src="docs/dark.png" width="30%" alt="Темна тема">
 </p>
 
