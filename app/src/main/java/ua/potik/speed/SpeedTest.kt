@@ -99,7 +99,8 @@ class SpeedTest(
         val up = bandwidth(download = false)
         check()
 
-        return Result(ping, jitter, down.speed, up.speed, down.loaded, up.loaded, usedBytes.get(), meta)
+        runCatching { ispThread?.join(1500) }
+        return Result(ping, jitter, down.speed, up.speed, down.loaded, up.loaded, usedBytes.get(), synchronized(meta) { JSONObject(meta.toString()) })
     }
 
     // ---------- 1. з'єднання і відомості про сервер ----------
@@ -125,12 +126,20 @@ class SpeedTest(
         } finally {
             calls -= call
         }
-        // Назву провайдера беремо окремо — це не критично для вимірювання
-        val isp = runCatching { isp() }.getOrNull()
-        if (!isp.isNullOrBlank()) meta.put("isp", isp) else ASN_NAMES[meta.optString("asn")]?.let { meta.put("isp", it) }
+        ASN_NAMES[meta.optString("asn")]?.let { meta.put("isp", it) }
         emit("meta", meta)
+        // Назву провайдера уточнюємо паралельно — вимірювання на неї не чекає
+        ispThread = Thread({
+            val isp = runCatching { isp() }.getOrNull()
+            if (!isp.isNullOrBlank()) {
+                synchronized(meta) { meta.put("isp", isp) }
+                emit("meta", synchronized(meta) { JSONObject(meta.toString()) })
+            }
+        }, "potik-isp").apply { isDaemon = true; start() }
         return meta
     }
+
+    private var ispThread: Thread? = null
 
     private fun isp(): String? {
         val client = pinger.newBuilder().callTimeout(4, TimeUnit.SECONDS).build()

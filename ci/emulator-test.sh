@@ -10,9 +10,9 @@ adb logcat -c
 adb shell am start -n $PKG/.MainActivity --ez autoTest true
 sleep 3
 adb exec-out screencap -p > $OUT/1_start.png
-sleep 6
-adb exec-out screencap -p > $OUT/2_download.png
 sleep 9
+adb exec-out screencap -p > $OUT/2_download.png
+sleep 10
 adb exec-out screencap -p > $OUT/3_upload.png
 for i in $(seq 1 60); do
   adb shell "test -f /sdcard/Android/data/$PKG/files/last_result.json" && break
@@ -36,6 +36,6 @@ sleep 5
 adb exec-out screencap -p > $OUT/7_dark.png
 adb shell cmd uimode night no
 adb logcat -d > $OUT/logcat_all.txt 2>&1 || true
-grep -iE "potik|AndroidRuntime|FATAL|chromium" $OUT/logcat_all.txt | tail -300 > $OUT/logcat.txt || true
+grep -iE "potik|AndroidRuntime|FATAL|chromium|Killing|has died" $OUT/logcat_all.txt | grep -v AppsFilter | tail -300 > $OUT/logcat.txt || true
 rm -f $OUT/logcat_all.txt
 exit 0
