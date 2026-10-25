@@ -117,14 +117,20 @@
   }
 
   // Плавне наближення стрілки до цілі (критично демпфована пружина)
+  // Інтегруємо дрібними кроками за реальний час — на повільних екранах стрілка не «відстає»
   let lastT = 0;
   function loop(t) {
-    const dt = Math.min(0.05, (t - lastT) / 1000 || 0.016);
+    let dt = lastT ? Math.min(0.5, (t - lastT) / 1000) : 0.016;
     lastT = t;
     const k = 60, d = 2 * Math.sqrt(k);
-    vel += (k * (target - shown) - d * vel) * dt;
-    shown += vel * dt;
+    while (dt > 0) {
+      const h = Math.min(0.016, dt);
+      vel += (k * (target - shown) - d * vel) * h;
+      shown += vel * h;
+      dt -= h;
+    }
     if (shown < 0) { shown = 0; vel = 0; }
+    if (!running && target === 0 && shown < 0.05) { shown = 0; vel = 0; }
     renderDial(shown);
     requestAnimationFrame(loop);
   }
@@ -164,7 +170,7 @@
     $('connName').textContent = name;
     $('connSub').textContent = sub;
     const foot = [];
-    if (m && m.colo) foot.push('Сервер Cloudflare: ' + (m.coloCity || m.colo) + (m.colo ? ' (' + m.colo + ')' : ''));
+    if (m && m.colo) foot.push('Сервер Cloudflare: ' + (m.coloCity ? m.coloCity + ' (' + m.colo + ')' : m.colo));
     if (m && m.ip) foot.push('Ваша IP-адреса ' + m.ip);
     $('foot').innerHTML = foot.map(esc).join('<br>');
   }
