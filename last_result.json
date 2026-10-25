@@ -1,0 +1,27 @@
+{
+  "id": "1792917192480",
+  "time": 1792917192480,
+  "ping": 20.1,
+  "jitter": 16.8,
+  "down": 79.35,
+  "up": 35.52,
+  "loadedDown": 47,
+  "loadedUp": 35.4,
+  "bytes": 131604239,
+  "economy": false,
+  "net": {
+    "metered": false,
+    "type": "wifi",
+    "title": "Wi‑Fi 2,4 ГГц",
+    "sub": "зв'язок 1 Мбіт\/с, сигнал відмінний"
+  },
+  "meta": {
+    "ip": "20.119.79.66",
+    "colo": "IAD",
+    "coloCity": "Вашингтон",
+    "city": "Dulles Town Center",
+    "country": "US",
+    "asn": "8075",
+    "isp": "Microsoft Corporation"
+  }
+}

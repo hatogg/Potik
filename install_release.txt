@@ -1,0 +1,9 @@
+Performing Streamed Install
+Success
+Starting: Intent { cmp=ua.potik.speed/.MainActivity }
+Status: ok
+LaunchState: COLD
+Activity: ua.potik.speed/.MainActivity
+TotalTime: 901
+WaitTime: 904
+Complete
