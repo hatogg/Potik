@@ -36,13 +36,18 @@ sleep 5
 adb exec-out screencap -p > $OUT/7_dark.png
 adb shell cmd uimode night no
 # Релізна збірка (з R8): запуск і справжнє вимірювання натисканням на кнопку
+adb shell am force-stop $PKG
+sleep 2
 adb uninstall $PKG > /dev/null 2>&1
+sleep 5
 adb install -r app/build/outputs/apk/release/app-release.apk > $OUT/install_release.txt 2>&1
-adb shell am start -n $PKG/.MainActivity
+sleep 3
+adb shell am start -W -n $PKG/.MainActivity >> $OUT/install_release.txt 2>&1
 sleep 6
+adb exec-out screencap -p > $OUT/8_release_start.png
 adb shell input tap 540 1020
 sleep 40
-adb exec-out screencap -p > $OUT/8_release_done.png
+adb exec-out screencap -p > $OUT/9_release_done.png
 adb logcat -d > $OUT/logcat_all.txt 2>&1 || true
 grep -iE "potik|AndroidRuntime|FATAL|chromium|Killing|has died" $OUT/logcat_all.txt | grep -v AppsFilter | tail -300 > $OUT/logcat.txt || true
 rm -f $OUT/logcat_all.txt
