@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>Потік</title>
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<div id="app">
+  <header class="top">
+    <h1 class="mark">Потік</h1>
+    <div class="top-btns">
+      <button class="knob" id="histBtn" aria-label="Історія вимірювань"><svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.4-5.7M4 4v3.5h3.5M12 8v4.3l2.8 1.7"/></svg></button>
+      <button class="knob" id="setBtn" aria-label="Налаштування"><svg viewBox="0 0 24 24"><path d="M5 7h9M18 7h1M5 17h3M12 17h7"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg></button>
+    </div>
+  </header>
+
+  <div class="conn" id="conn">
+    <span class="conn-ic" id="connIc"></span>
+    <span class="conn-txt"><b id="connName">Перевіряю мережу…</b><span id="connSub"></span></span>
+  </div>
+
+  <section class="dial-wrap">
+    <div class="dial" id="dial">
+      <svg class="scale" id="scale" viewBox="0 0 300 300" aria-hidden="true"></svg>
+      <div class="groove"></div>
+      <svg class="flow" id="flow" viewBox="0 0 300 300" aria-hidden="true">
+        <defs>
+          <linearGradient id="gDown" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="var(--down2)"/><stop offset="1" stop-color="var(--down)"/></linearGradient>
+          <linearGradient id="gUp" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="var(--up2)"/><stop offset="1" stop-color="var(--up)"/></linearGradient>
+        </defs>
+        <path id="flowArc" d="" fill="none" stroke="url(#gDown)" stroke-width="15" stroke-linecap="round"/>
+      </svg>
+      <div class="bead" id="bead"></div>
+      <button class="puck" id="puck" aria-live="polite">
+        <span class="puck-idle" id="puckIdle">Почати</span>
+        <span class="puck-live" id="puckLive">
+          <span class="dir" id="puckDir"></span>
+          <b id="puckNum">0</b>
+          <span class="unit" id="puckUnit">Мбіт/с</span>
+        </span>
+      </button>
+      <div class="dial-foot" id="dialFoot">Мбіт/с</div>
+    </div>
+  </section>
+
+  <div class="phase" id="phase">Натисніть, щоб виміряти швидкість</div>
+
+  <section class="tray" id="tray">
+    <div class="cell big" data-k="down"><span class="lbl"><i class="dot d"></i>Завантаження</span><b id="vDown">—</b><span class="u" id="uDown">Мбіт/с</span></div>
+    <div class="cell big" data-k="up"><span class="lbl"><i class="dot u"></i>Вивантаження</span><b id="vUp">—</b><span class="u" id="uUp">Мбіт/с</span></div>
+    <div class="cell small" data-k="ping"><span class="lbl">Пінг</span><b id="vPing">—</b><span class="u">мс</span></div>
+    <div class="cell small" data-k="jitter"><span class="lbl">Джитер</span><b id="vJitter">—</b><span class="u">мс</span></div>
+  </section>
+
+  <section class="trough" id="trough">
+    <svg id="graph" viewBox="0 0 320 90" preserveAspectRatio="none" aria-hidden="true">
+      <path id="gAreaDown" class="area d" d=""/>
+      <path id="gLineDown" class="line d" d=""/>
+      <path id="gAreaUp" class="area u" d=""/>
+      <path id="gLineUp" class="line u" d=""/>
+    </svg>
+    <div class="trough-empty" id="graphEmpty">Тут буде графік швидкості під час вимірювання</div>
+  </section>
+
+  <section class="after hidden" id="after">
+    <h2>Чого вистачить</h2>
+    <div class="uses" id="uses"></div>
+    <div class="extra" id="extra"></div>
+    <div class="btn-row">
+      <button class="pill" id="shareBtn"><svg viewBox="0 0 24 24"><path d="M12 15V4M8 8l4-4 4 4M6 13v6h12v-6"/></svg>Поділитися</button>
+    </div>
+  </section>
+
+  <footer class="foot" id="foot"></footer>
+</div>
+
+<div class="sheet hidden" id="sheet">
+  <div class="scrim" data-close></div>
+  <div class="panel"><div class="grab"></div><div id="sheetBody"></div></div>
+</div>
+<div id="toast" role="status"></div>
+
+<script>if (!(window.Android && window.Android.hello)) document.write('<script src="mock.js"><\/script>');</script>
+<script src="app.js"></script>
+</body>
+</html>

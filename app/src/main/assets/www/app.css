@@ -1,0 +1,192 @@
+@font-face{font-family:Geo;src:url(../fonts/Geologica.ttf);font-weight:100 900}
+
+/* ---------- Матеріал: м'яка «глина» кольору туману над річкою ---------- */
+:root{
+  --clay:#D8E1DF;      /* поверхня */
+  --sd:#AEBCB8;        /* тінь знизу справа */
+  --sl:#F7FCFB;        /* відблиск зверху зліва */
+  --ink:#1F3739;       /* текст */
+  --ink2:#5B7372;      /* другорядний текст */
+  --ink3:#869A98;      /* гравіювання шкали */
+  --down:#12A79B;      /* потік завантаження */
+  --down2:#0B6F78;
+  --up:#E8962D;        /* потік вивантаження */
+  --up2:#C2601E;
+  --good:#12A79B;
+  --mid:#C98A1B;
+  --bad:#C94B3A;
+  --raise:10px 10px 22px var(--sd),-10px -10px 22px var(--sl);
+  --raise-m:6px 6px 13px var(--sd),-6px -6px 13px var(--sl);
+  --raise-s:3px 3px 7px var(--sd),-3px -3px 7px var(--sl);
+  --sink:inset 7px 7px 14px var(--sd),inset -7px -7px 14px var(--sl);
+  --sink-s:inset 3px 3px 7px var(--sd),inset -3px -3px 7px var(--sl);
+  --engrave:0 1px 0 var(--sl);
+  color-scheme:light;
+}
+:root.dark{
+  --clay:#1E2827;
+  --sd:#121918;
+  --sl:#2A3735;
+  --ink:#D5E4E1;
+  --ink2:#8EA4A0;
+  --ink3:#61756F;
+  --down:#2BD3C2;
+  --down2:#118C93;
+  --up:#FFB04D;
+  --up2:#DB7426;
+  --good:#2BD3C2;
+  --mid:#E8B341;
+  --bad:#F07A66;
+  --engrave:0 -1px 0 #0d1312;
+  color-scheme:dark;
+}
+
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--clay);color:var(--ink);font-family:Geo,system-ui,sans-serif;font-weight:450;font-size:15px;font-variation-settings:'SHRP' 0}
+body{padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom);transition:background-color .3s}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
+button:focus-visible{outline:2px solid var(--down);outline-offset:3px}
+svg{display:block}
+.hidden{display:none!important}
+#app{max-width:480px;margin:0 auto;padding:16px 20px 28px}
+
+/* ---------- верх ---------- */
+.top{display:flex;align-items:center;justify-content:space-between;margin:6px 0 18px}
+.mark{margin:0;font-weight:760;font-size:30px;letter-spacing:-.02em;color:var(--ink);text-shadow:1px 1px 0 var(--sl),-1px -1px 1px var(--sd)}
+:root.dark .mark{text-shadow:-1px -1px 0 var(--sd),1px 1px 1px var(--sl)}
+.top-btns{display:flex;gap:14px}
+.knob{width:46px;height:46px;border-radius:50%;box-shadow:var(--raise-m);display:grid;place-items:center;transition:box-shadow .15s}
+.knob:active{box-shadow:var(--sink-s)}
+.knob svg,.pill svg{width:22px;height:22px;fill:none;stroke:var(--ink2);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+
+/* ---------- мережа ---------- */
+.conn{display:flex;align-items:center;gap:12px;padding:11px 16px;border-radius:999px;box-shadow:var(--sink-s);min-height:52px}
+.conn-ic{width:28px;height:28px;flex:0 0 auto;display:grid;place-items:center}
+.conn-ic svg{width:22px;height:22px;fill:none;stroke:var(--down);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.conn-txt{display:flex;flex-direction:column;min-width:0}
+.conn-txt b{font-weight:620;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.conn-txt span{color:var(--ink2);font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* ---------- прилад ---------- */
+.dial-wrap{display:flex;justify-content:center;margin:26px 0 10px}
+.dial{position:relative;width:min(86vw,340px);aspect-ratio:1;border-radius:50%;box-shadow:var(--raise)}
+.scale,.flow{position:absolute;inset:0;width:100%;height:100%}
+.scale text{font-family:Geo;font-size:12.5px;font-weight:560;text-anchor:middle;dominant-baseline:middle}
+.scale .eng-l{fill:var(--sl)}
+.scale .eng-d{fill:var(--ink3)}
+.scale line{stroke-linecap:round}
+.groove{position:absolute;left:12.667%;top:12.667%;width:74.667%;height:74.667%;border-radius:50%;box-shadow:var(--sink)}
+.groove::after{content:"";position:absolute;left:10.714%;top:10.714%;width:78.571%;height:78.571%;border-radius:50%;background:var(--clay);box-shadow:var(--raise-s)}
+.flow{pointer-events:none}
+.flow path{transition:stroke .4s}
+.bead{position:absolute;width:7.6%;height:7.6%;margin:-3.8% 0 0 -3.8%;border-radius:50%;background:var(--clay);box-shadow:2px 2px 5px var(--sd),-2px -2px 5px var(--sl);left:50%;top:50%;opacity:0;transition:opacity .3s}
+.bead::after{content:"";position:absolute;inset:32%;border-radius:50%;background:var(--down);box-shadow:0 0 6px var(--down);transition:background .4s,box-shadow .4s}
+.bead.up::after{background:var(--up);box-shadow:0 0 6px var(--up)}
+.bead.on{opacity:1}
+
+.puck{position:absolute;left:25.333%;top:25.333%;width:49.333%;height:49.333%;border-radius:50%;background:var(--clay);box-shadow:var(--raise-m);display:grid;place-items:center;transition:box-shadow .25s ease-out}
+.puck.latched{box-shadow:var(--sink)}
+.puck:active{box-shadow:var(--sink)}
+.puck-idle{font-weight:650;font-size:22px;letter-spacing:-.01em}
+.puck-live{display:none;flex-direction:column;align-items:center;line-height:1}
+.puck.latched .puck-idle{display:none}
+.puck.latched .puck-live{display:flex}
+.puck-live b{font-weight:280;font-size:clamp(34px,11.5vw,46px);letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+.puck-live .unit{margin-top:6px;font-size:12.5px;color:var(--ink2)}
+.puck-live .dir{height:20px;margin-bottom:4px}
+.puck-live .dir svg{width:20px;height:20px;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.dial-foot{position:absolute;left:0;right:0;bottom:7.5%;text-align:center;font-size:12.5px;color:var(--ink3);font-weight:560;text-shadow:var(--engrave)}
+
+.phase{text-align:center;color:var(--ink2);min-height:22px;margin:4px 0 20px}
+.phase b{color:var(--ink);font-weight:620}
+.phase .stop{margin-left:10px;color:var(--bad);font-weight:620;text-decoration:underline;text-underline-offset:3px}
+
+/* ---------- лоток показників: 2×2, головні — завантаження й вивантаження ---------- */
+.tray{display:grid;grid-template-columns:1fr 1fr;border-radius:24px;box-shadow:var(--sink);padding:8px}
+.cell{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:10px 14px 11px;border-radius:17px;transition:box-shadow .3s;min-width:0}
+.cell.big{padding:12px 14px 13px}
+.cell:nth-child(2n)::before{content:"";position:absolute;left:0;top:18%;bottom:18%;width:2px;border-left:1px solid var(--sd);border-right:1px solid var(--sl)}
+.cell:nth-child(n+3)::after{content:"";position:absolute;top:0;left:10%;right:10%;height:2px;border-top:1px solid var(--sd);border-bottom:1px solid var(--sl)}
+.cell.active{box-shadow:var(--raise-s)}
+.cell.active::before,.cell.active::after{opacity:0}
+.cell .lbl{font-size:13px;color:var(--ink2);display:flex;align-items:center;gap:6px;white-space:nowrap}
+.cell b{font-weight:300;font-size:clamp(20px,6.4vw,26px);letter-spacing:-.02em;font-variant-numeric:tabular-nums;line-height:1.15}
+.cell.big b{font-size:clamp(30px,10vw,40px);font-weight:280}
+.cell .u{font-size:11.5px;color:var(--ink3)}
+.cell.small{flex-direction:row;align-items:baseline;gap:8px;padding-top:12px;padding-bottom:12px}
+.cell.small .lbl{margin-right:auto}
+.dot{width:8px;height:8px;border-radius:50%;display:inline-block}
+.dot.d{background:var(--down)}
+.dot.u{background:var(--up)}
+
+/* ---------- жолоб із графіком ---------- */
+.trough{position:relative;margin-top:16px;height:96px;border-radius:22px;box-shadow:var(--sink);overflow:hidden;padding:10px 6px 6px}
+.trough svg{width:100%;height:100%}
+.area{opacity:.22}
+.area.d{fill:var(--down)}
+.area.u{fill:var(--up)}
+.line{fill:none;stroke-width:2;vector-effect:non-scaling-stroke;stroke-linejoin:round}
+.line.d{stroke:var(--down)}
+.line.u{stroke:var(--up)}
+.trough-empty{position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:0 24px;color:var(--ink3);font-size:13px}
+
+/* ---------- після вимірювання ---------- */
+.after{margin-top:26px}
+.after h2{font-size:17px;font-weight:650;margin:0 0 14px 4px;letter-spacing:-.01em}
+.uses{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.use{border-radius:20px;box-shadow:var(--raise-m);padding:14px 12px 13px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.use svg{width:24px;height:24px;fill:none;stroke:var(--ink2);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.use b{font-weight:600;font-size:14px;line-height:1.2}
+.use .meter{display:flex;gap:4px}
+.use .meter i{flex:1;height:6px;border-radius:6px;box-shadow:var(--sink-s)}
+.use .meter i.on{box-shadow:none}
+.use.g .meter i.on{background:var(--good)}
+.use.m .meter i.on{background:var(--mid)}
+.use.b .meter i.on{background:var(--bad)}
+.use .verdict{font-size:12.5px;color:var(--ink2)}
+.extra{margin:18px 4px 0;color:var(--ink2);font-size:13.5px;line-height:1.6}
+.extra b{color:var(--ink);font-weight:600}
+.btn-row{display:flex;gap:14px;margin-top:20px}
+.pill{flex:1;display:flex;align-items:center;justify-content:center;gap:9px;height:52px;border-radius:999px;box-shadow:var(--raise-m);font-weight:620;transition:box-shadow .15s}
+.pill:active{box-shadow:var(--sink-s)}
+.pill.danger{color:var(--bad)}
+
+.foot{margin:26px 4px 0;color:var(--ink3);font-size:12.5px;line-height:1.55;text-align:center}
+
+/* ---------- аркуші ---------- */
+.sheet{position:fixed;inset:0;z-index:20}
+.scrim{position:absolute;inset:0;background:rgba(20,30,30,.28)}
+:root.dark .scrim{background:rgba(0,0,0,.45)}
+.panel{position:absolute;left:0;right:0;bottom:0;max-height:86vh;overflow:auto;background:var(--clay);border-radius:28px 28px 0 0;padding:10px 20px calc(24px + env(safe-area-inset-bottom));box-shadow:0 -10px 30px rgba(0,0,0,.18);animation:rise .28s cubic-bezier(.2,.8,.2,1)}
+@keyframes rise{from{transform:translateY(60px);opacity:0}}
+.grab{width:44px;height:6px;border-radius:6px;box-shadow:var(--sink-s);margin:4px auto 18px}
+.panel h3{margin:0 0 6px;font-size:20px;font-weight:680;letter-spacing:-.01em}
+.panel .sub{margin:0 0 16px;color:var(--ink2);font-size:13.5px;line-height:1.5}
+.well{border-radius:22px;box-shadow:var(--sink);padding:6px 14px}
+.row{display:flex;align-items:center;gap:12px;padding:13px 2px;width:100%;text-align:left}
+.row+.row{border-top:1px solid var(--sd);box-shadow:inset 0 1px 0 var(--sl)}
+.row .grow{flex:1;min-width:0}
+.row small{display:block;color:var(--ink2);font-size:12.5px;margin-top:2px}
+.row .nums{display:flex;gap:12px;font-variant-numeric:tabular-nums;font-size:14px;white-space:nowrap}
+.row .nums span{display:flex;align-items:center;gap:4px}
+.row .nums .p{color:var(--ink2)}
+.row svg.ic{width:22px;height:22px;fill:none;stroke:var(--ink2);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:0 0 auto}
+.seg{display:flex;border-radius:18px;box-shadow:var(--sink-s);padding:5px;gap:5px;margin:8px 0 18px}
+.seg button{flex:1;padding:11px 6px;border-radius:13px;color:var(--ink2);font-weight:560;font-size:14px;transition:box-shadow .2s,color .2s}
+.seg button.on{box-shadow:var(--raise-s);color:var(--ink)}
+.lab{margin:4px 4px 0;font-weight:600}
+.lab small{display:block;color:var(--ink2);font-weight:450;font-size:12.5px;margin-top:2px}
+.empty{padding:26px 10px;text-align:center;color:var(--ink2)}
+.detail-big{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:6px 0 16px}
+.detail-big div{border-radius:20px;box-shadow:var(--raise-m);padding:14px 16px}
+.detail-big span{display:flex;align-items:center;gap:6px;color:var(--ink2);font-size:13px}
+.detail-big b{display:block;font-weight:300;font-size:34px;letter-spacing:-.03em;font-variant-numeric:tabular-nums;margin-top:4px}
+.detail-big small{color:var(--ink3)}
+.kv{margin:0 4px;font-size:14px;line-height:1.9}
+.kv span{color:var(--ink2)}
+
+#toast{position:fixed;left:50%;bottom:calc(26px + env(safe-area-inset-bottom));transform:translate(-50%,20px);background:var(--clay);box-shadow:var(--raise-m);padding:12px 18px;border-radius:16px;font-weight:600;opacity:0;pointer-events:none;transition:.25s;max-width:90vw;text-align:center;z-index:30}
+#toast.show{opacity:1;transform:translate(-50%,0)}
+
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+@media (max-width:360px){#app{padding:12px 14px 24px}.cell{padding:9px 10px}}

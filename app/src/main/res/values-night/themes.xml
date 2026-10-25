@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.Potik" parent="android:Theme.Material.NoActionBar">
+        <item name="android:windowBackground">@color/clay</item>
+        <item name="android:statusBarColor">@color/clay</item>
+        <item name="android:navigationBarColor">@color/clay</item>
+        <item name="android:colorAccent">@color/flow</item>
+    </style>
+    <color name="clay">#1E2827</color>
+    <color name="flow">#2BD3C2</color>
+</resources>
