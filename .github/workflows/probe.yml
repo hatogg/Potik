@@ -12,18 +12,19 @@ jobs:
   probe:
     runs-on: ubuntu-latest
     steps:
-      - name: Probe Cloudflare speed endpoints
+      - name: Probe
         run: |
           mkdir -p out && cd out
-          curl -s -m 20 -D meta.h https://speed.cloudflare.com/meta -o meta.json
-          curl -s -m 20 https://speed.cloudflare.com/cdn-cgi/trace -o trace.txt
-          curl -s -m 20 -D down0.h "https://speed.cloudflare.com/__down?bytes=0" -o /dev/null
-          curl -s -m 30 -D down.h -w "down25MB: %{speed_download} B/s %{time_total}s connect=%{time_connect} ttfb=%{time_starttransfer}\n" "https://speed.cloudflare.com/__down?bytes=25000000" -o /dev/null >> timing.txt
-          head -c 10000000 /dev/zero > up.bin
-          curl -s -m 30 -D up.h -w "up10MB: %{speed_upload} B/s %{time_total}s code=%{http_code}\n" -X POST --data-binary @up.bin -H "Content-Type: application/octet-stream" "https://speed.cloudflare.com/__up" -o up.body >> timing.txt
-          rm up.bin
-          for i in 1 2 3 4 5; do curl -s -m 10 -w "ping: ttfb=%{time_starttransfer} total=%{time_total}\n" "https://speed.cloudflare.com/__down?bytes=0" -o /dev/null >> timing.txt; done
-          curl -s -m 20 -D big.h "https://speed.cloudflare.com/__down?bytes=500000000" -r 0-10 -o /dev/null -w "500MB code=%{http_code}\n" >> timing.txt
+          UA="Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Mobile Safari/537.36"
+          curl -s -m 20 -A "$UA" -H "Referer: https://speed.cloudflare.com/" -H "Origin: https://speed.cloudflare.com" -w "\nmeta code=%{http_code}\n" https://speed.cloudflare.com/meta > meta_browser.txt
+          curl -s -m 20 -A "Potik/1.0 (Android)" -w "\nmeta code=%{http_code}\n" https://speed.cloudflare.com/meta > meta_app.txt
+          for b in 50000000 100000000 200000000 250000000 300000000; do curl -s -m 60 -o /dev/null -w "bytes=$b code=%{http_code} size=%{size_download} speed=%{speed_download}\n" "https://speed.cloudflare.com/__down?bytes=$b" >> sizes.txt; done
+          for u in "https://ipinfo.io/json" "https://ipwho.is/" "http://ip-api.com/json/?fields=status,country,city,isp,org,as,query" "https://api.ip.sb/geoip"; do echo "== $u" >> isp.txt; curl -s -m 15 -A "Potik/1.0" "$u" >> isp.txt; echo >> isp.txt; done
+          # parallel download 8 streams for ~8s
+          start=$(date +%s.%N)
+          for i in $(seq 1 8); do (curl -s -m 8 -o /dev/null -w "%{size_download}\n" "https://speed.cloudflare.com/__down?bytes=100000000" >> par.txt) & done; wait
+          end=$(date +%s.%N)
+          python3 -c "import sys; t=float('$end')-float('$start'); b=sum(int(x) for x in open('par.txt').read().split()); print('parallel8: %.1f Mbit/s over %.1fs' % (b*8/t/1e6, t))" >> sizes.txt
           date -u > when.txt
       - name: Publish
         run: |
