@@ -1,0 +1,33 @@
+name: Probe
+
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/probe.yml']
+
+permissions:
+  contents: write
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Probe Cloudflare speed endpoints
+        run: |
+          mkdir -p out && cd out
+          curl -s -m 20 -D meta.h https://speed.cloudflare.com/meta -o meta.json
+          curl -s -m 20 https://speed.cloudflare.com/cdn-cgi/trace -o trace.txt
+          curl -s -m 20 -D down0.h "https://speed.cloudflare.com/__down?bytes=0" -o /dev/null
+          curl -s -m 30 -D down.h -w "down25MB: %{speed_download} B/s %{time_total}s connect=%{time_connect} ttfb=%{time_starttransfer}\n" "https://speed.cloudflare.com/__down?bytes=25000000" -o /dev/null >> timing.txt
+          head -c 10000000 /dev/zero > up.bin
+          curl -s -m 30 -D up.h -w "up10MB: %{speed_upload} B/s %{time_total}s code=%{http_code}\n" -X POST --data-binary @up.bin -H "Content-Type: application/octet-stream" "https://speed.cloudflare.com/__up" -o up.body >> timing.txt
+          rm up.bin
+          for i in 1 2 3 4 5; do curl -s -m 10 -w "ping: ttfb=%{time_starttransfer} total=%{time_total}\n" "https://speed.cloudflare.com/__down?bytes=0" -o /dev/null >> timing.txt; done
+          curl -s -m 20 -D big.h "https://speed.cloudflare.com/__down?bytes=500000000" -r 0-10 -o /dev/null -w "500MB code=%{http_code}\n" >> timing.txt
+          date -u > when.txt
+      - name: Publish
+        run: |
+          cd out
+          git init -q && git checkout -q -b probe && git add -A
+          git -c user.name=github-actions -c user.email=actions@github.com commit -qm probe
+          git push -f -q "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" probe
