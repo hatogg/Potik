@@ -400,6 +400,7 @@
           $('vJitter').textContent = fmtMs(d.jitter);
           break;
         case 'speed': {
+          if (d.dir === 'up' && d.progress < 0.08) break; // на старті вивантаження буфери дають хибний сплеск
           target = d.mbps;
           if (d.mbps > peak) peak = d.mbps;
           setScaleFor(Math.max(peak, d.mbps));

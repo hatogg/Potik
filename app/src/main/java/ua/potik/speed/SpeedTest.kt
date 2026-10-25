@@ -62,6 +62,24 @@ class SpeedTest(
         .dispatcher(Dispatcher().apply { maxRequests = 64; maxRequestsPerHost = 32 })
         .build()
 
+    /**
+     * Для вивантаження обмежуємо буфер відправки сокета: інакше Android спершу «заковтує» кілька мегабайтів
+     * у буфер і на повільних каналах швидкість на старті здається завищеною.
+     */
+    private val uploader: OkHttpClient = bulk.newBuilder()
+        .socketFactory(object : javax.net.SocketFactory() {
+            private val base = javax.net.SocketFactory.getDefault()
+            private fun tune(s: java.net.Socket) = s.apply { runCatching { sendBufferSize = SNDBUF } }
+            override fun createSocket() = tune(base.createSocket())
+            override fun createSocket(host: String?, port: Int) = tune(base.createSocket(host, port))
+            override fun createSocket(host: String?, port: Int, localHost: java.net.InetAddress?, localPort: Int) =
+                tune(base.createSocket(host, port, localHost, localPort))
+            override fun createSocket(host: java.net.InetAddress?, port: Int) = tune(base.createSocket(host, port))
+            override fun createSocket(address: java.net.InetAddress?, port: Int, localAddress: java.net.InetAddress?, localPort: Int) =
+                tune(base.createSocket(address, port, localAddress, localPort))
+        })
+        .build()
+
     /** Окремий клієнт для пінгів, щоб вони мали власне «тепле» з'єднання. */
     private val pinger: OkHttpClient = bulk.newBuilder()
         .connectionPool(ConnectionPool(2, 1, TimeUnit.MINUTES))
@@ -250,6 +268,7 @@ class SpeedTest(
         var lastBinTime = start
         var nextBin = start + 250_000_000L
         var scaled = false
+        var warm = false
         try {
             while (true) {
                 if (stopped.get()) throw Stopped()
@@ -261,7 +280,12 @@ class SpeedTest(
                 while (window.size > 2 && now - window.first().first > 600_000_000L) window.removeFirst()
                 val (wt, wb) = window.first()
                 val inst = if (now > wt) (bytes - wb) * 8.0 / ((now - wt) / 1e9) / 1e6 else 0.0
-                if (now >= nextBin) {
+                // Розгін: перші 1,5 с і (для вивантаження) поки буфери сокетів не наповнились і не спорожніли двічі
+                if (!warm && elapsed >= 1500 && (download || bytes >= streams.toLong() * SNDBUF * 4)) {
+                    warm = true
+                    lastBinBytes = bytes; lastBinTime = now; nextBin = now + 250_000_000L
+                }
+                if (warm && now >= nextBin) {
                     val dt = (now - lastBinTime) / 1e9
                     if (dt > 0) bins += (bytes - lastBinBytes) * 8.0 / dt / 1e6
                     lastBinBytes = bytes; lastBinTime = now; nextBin = now + 250_000_000L
@@ -301,18 +325,24 @@ class SpeedTest(
             loadedThread.interrupt()
             workers.forEach { runCatching { it.join(1500) } }
         }
-        val speed = estimate(bins).let { if (it > 0) it else total.get() * 8.0 / ((System.nanoTime() - start) / 1e9) / 1e6 }
+        val speed = estimate(bins).let {
+            if (it > 0) it else {
+                // Дуже повільний канал: рахуємо все, крім того, що могло застрягти в буферах
+                val inFlight = if (download) 0L else streams.toLong() * SNDBUF * 2
+                max(0L, total.get() - inFlight) * 8.0 / ((System.nanoTime() - start) / 1e9) / 1e6
+            }
+        }
         val loaded = synchronized(loadedSamples) { if (loadedSamples.size >= 2) median(loadedSamples) else null }
         return Bw(speed, loaded)
     }
 
     /**
-     * Оцінка швидкості з 250-мілісекундних відрізків: відкидаємо перші 1,5 с (розгін TCP),
+     * Оцінка швидкості з 250-мілісекундних відрізків після розгону: відкидаємо
      * найповільніші 30% і найшвидші 5%, решту усереднюємо.
      */
     private fun estimate(bins: List<Double>): Double {
         if (bins.size < 4) return 0.0
-        val tail = bins.drop(min(6, bins.size / 3)).sorted()
+        val tail = bins.sorted()
         if (tail.isEmpty()) return 0.0
         val from = (tail.size * 0.30).toInt()
         val to = max(from + 1, (tail.size * 0.95).toInt())
@@ -359,7 +389,7 @@ class SpeedTest(
                 }
             }
         }
-        val call = track(bulk.newCall(req(UP).post(body).build()))
+        val call = track(uploader.newCall(req(UP).post(body).build()))
         try {
             call.execute().use { r -> if (!r.isSuccessful) failFor(r) }
         } catch (e: IOException) {
@@ -375,6 +405,7 @@ class SpeedTest(
         private const val UP = "https://speed.cloudflare.com/__up"
         private const val CHUNK_DOWN = 25_000_000L
         private const val CHUNK_UP = 8_000_000L
+        private const val SNDBUF = 256 * 1024
         private val ZEROS = ByteArray(64 * 1024)
 
         /** Час обробки на сервері з Server-Timing (як у відкритому рушії Cloudflare), мс. */
