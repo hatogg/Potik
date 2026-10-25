@@ -1,0 +1,2 @@
+{"hostname":"speed.cloudflare.com","clientIp":"4.236.159.226","httpProtocol":"HTTP/1.1","asn":8075,"asOrganization":"Microsoft Corporation","country":"US","city":"Dulles Town Center","region":"Virginia","postalCode":"20164","latitude":"39.03761","longitude":"-77.41582","colo":{"iata":"IAD","lat":38.9445,"lon":-77.455803,"cca2":"US","region":"North America","city":"Dulles"}}
+meta code=200

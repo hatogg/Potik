@@ -1,0 +1,56 @@
+== https://ipinfo.io/json
+{
+  "ip": "4.236.159.226",
+  "city": "Dulles Town Center",
+  "region": "Virginia",
+  "country": "US",
+  "loc": "39.0376,-77.4158",
+  "org": "AS8075 Microsoft Corporation",
+  "postal": "20164",
+  "timezone": "America/New_York",
+  "readme": "https://ipinfo.io/missingauth"
+}
+== https://ipwho.is/
+{
+    "ip": "4.236.159.226",
+    "success": true,
+    "type": "IPv4",
+    "continent": "North America",
+    "continent_code": "NA",
+    "country": "United States",
+    "country_code": "US",
+    "region": "District of Columbia",
+    "region_code": "DC",
+    "city": "Washington",
+    "latitude": 38.8951121,
+    "longitude": -77.0363706,
+    "is_eu": false,
+    "postal": "20511",
+    "calling_code": "1",
+    "capital": "Washington D.C.",
+    "borders": "CA,MX",
+    "flag": {
+        "img": "https://cdn.ipwhois.io/flags/us.svg",
+        "emoji": "🇺🇸",
+        "emoji_unicode": "U+1F1FA U+1F1F8"
+    },
+    "connection": {
+        "asn": 8075,
+        "org": "Microsoft Corporation",
+        "isp": "Microsoft Corporation",
+        "domain": "microsoft.com"
+    },
+    "timezone": {
+        "id": "America/New_York",
+        "abbr": "EDT",
+        "is_dst": true,
+        "offset": -14400,
+        "utc": "-04:00"
+    },
+    "readme": "https://ipwhois.io/docs"
+}
+== http://ip-api.com/json/?fields=status,country,city,isp,org,as,query
+{"status":"success","country":"United States","city":"Boydton","isp":"Microsoft Corporation","org":"Microsoft Azure Cloud (eastus)","as":"AS8075 Microsoft Corporation","query":"4.236.159.226"}
+== https://api.ip.sb/geoip
+{"region":"Virginia","organization":"Microsoft Azure","region_code":"VA","isp":"Microsoft Azure","city":"Dulles","asn_organization":"Microsoft Corporation","postal_code":"20189","asn":8075,"latitude":39.0367,"ip":"4.236.159.226","continent_code":"NA","offset":-18000,"country":"United States","timezone":"America\/New_York","country_code":"US","longitude":-77.4209}
+

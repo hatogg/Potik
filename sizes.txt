@@ -1,0 +1,6 @@
+bytes=50000000 code=200 size=50000000 speed=298821448
+bytes=100000000 code=403 size=1 speed=34
+bytes=200000000 code=403 size=1 speed=31
+bytes=250000000 code=403 size=1 speed=33
+bytes=300000000 code=403 size=1 speed=30
+parallel8: 0.0 Mbit/s over 0.1s
